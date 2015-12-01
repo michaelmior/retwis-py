@@ -70,21 +70,21 @@ class User(Model):
     _from, _to = (page-1)*10, page*10
     posts = r.lrange("user:id:%s:posts" % self.id, _from, _to)
     if posts:
-      return [Post(int(post_id)) for post_id in posts]
+      return [Post(post_id) for post_id in posts]
     return []
   
   def timeline(self,page=1):
     _from, _to = (page-1)*10, page*10
     timeline= r.lrange("user:id:%s:timeline" % self.id, _from, _to)
     if timeline:
-      return [Post(int(post_id)) for post_id in timeline]
+      return [Post(post_id) for post_id in timeline]
     return []
 
   def mentions(self,page=1):
     _from, _to = (page-1)*10, page*10
     mentions = r.lrange("user:id:%s:mentions" % self.id, _from, _to)
     if mentions:
-      return [Post(int(post_id)) for post_id in mentions]
+      return [Post(post_id) for post_id in mentions]
     return []
 
 
@@ -153,7 +153,7 @@ class Post(Model):
   @staticmethod
   def create(user, content):
     post_id = r.incr("post:uid")
-    post = Post(post_id)
+    post = Post('%d:%d' % (user.id, post_id))
     post.content = content
     post.user_id = user.id
     #post.created_at = Time.now.to_s
@@ -170,13 +170,13 @@ class Post(Model):
 
   @staticmethod
   def find_by_id(id):
-    if r.sismember('posts:id', int(id)):
+    if r.sismember('posts:id', id):
       return Post(id)
     return None
   
   @property
   def user(self):
-    return User.find_by_id(r.get("post:id:%s:user_id" % self.id))
+    return User.find_by_id(self.id.split(':')[0])
 
   
 def main():

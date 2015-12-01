@@ -72,14 +72,14 @@ class tests(unittest.TestCase):
     user = User.create(self.params['username'],self.params['password'])
     Post.create(user,self.params['post'])
     self.assertEqual(1,len(user.posts()))
-    self.assertEqual(1,user.posts()[0].id)
+    self.assertEqual('1:1',user.posts()[0].id)
     self.assertEqual(self.params['post'],user.posts()[0].content)
   
   def test_post_find_by_id(self):
     user = User.create(self.params['username'],self.params['password'])
     Post.create(user,self.params['post'])
-    post_found = Post.find_by_id(1)
-    self.assertEqual(1,post_found.id)
+    post_found = Post.find_by_id('%d:1' % user.id)
+    self.assertEqual('1:1',post_found.id)
     self.assertEqual(user.id,int(post_found.user_id)) #shouldn't need int()
     self.assertEqual(self.params['username'],post_found.user.username)
     

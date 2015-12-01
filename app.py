@@ -76,7 +76,11 @@ def user_page(name):
 @bottle.route('/:name/statuses/:id')
 @bottle.validate(id=int)
 def status(name,id):
-  post = Post.find_by_id(id)
+  user = User.find_by_username(name)
+  if user:
+      post = Post.find_by_id(user.id + ':' + id)
+  else:
+      post = None
   if post:
     if post.user.username == name:
       return bottle.template('single',username=post.user.username,tweet=post,page='single',
